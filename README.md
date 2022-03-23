@@ -1,3 +1,5 @@
+## [Product Bio](https://docs.google.com/document/d/1FARv6wwxIcxTIKVK32WHXHITO5A19KgjidLm_0TBFmg/edit)
+
 ## Usage
 
 Those templates dependencies are maintained via [pnpm](https://pnpm.io) via `pnpm up -Lri`.
