@@ -2,12 +2,12 @@ import { Component, For, Match, Switch } from 'solid-js';
 import { produce } from 'solid-js/store';
 import FileText from '../../components/Icons/FileText';
 import Video from '../../components/Icons/Video';
-import { HeaderNode, Lesson, setStore, store } from '../../store/store';
+import { FolderNode, Lesson, setStore, store } from '../../store/store';
 
 const View = () => {
   return (
     <div class="">
-      <For each={Object.entries(store.headers)}>
+      <For each={Object.entries(store.folders)}>
         {([headerId, item]) => {
           return <Group id={headerId} {...item} />;
         }}
@@ -16,10 +16,10 @@ const View = () => {
   );
 };
 
-const Group: Component<HeaderNode['0'] & { id: string }> = (props) => {
+const Group: Component<FolderNode['0'] & { id: string }> = (props) => {
   return (
     <div class="bg-white rounded-md shadow-sm p-5 my-5">
-      <h2 class="font-semibold text-black/50">{props.header.title}</h2>
+      <h2 class="font-semibold text-black/50">{props.folder.title}</h2>
       <div class="">
         <For each={props.lessonIds.map((id) => ({ id, lesson: store.lessons[id].lesson }))}>
           {(item) => {

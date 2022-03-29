@@ -21,13 +21,20 @@ export type Lesson = {
   };
 };
 
-type Header = {
+type SubjectNode = {
+  [key: number]: {
+    type: 'lesson' | 'folder';
+    data: Lesson | Folder;
+  };
+};
+
+type Folder = {
   title: string;
 };
 
-export type HeaderNode = {
+export type FolderNode = {
   [key: number]: {
-    header: Header;
+    folder: Folder;
     lessonIds: number[];
   };
 };
@@ -46,7 +53,7 @@ type TStore = {
   } | null;
   title: string;
   lessons: LessonNode;
-  headers: HeaderNode;
+  folders: FolderNode;
   buildMode: boolean;
   nextHeaderId: number;
   nextLessonId: number;
@@ -97,15 +104,15 @@ export const [store, setStore] = createStore<TStore>({
       siblingLessonIds: [],
     },
   },
-  headers: {
+  folders: {
     0: {
-      header: {
+      folder: {
         title: 'Beginner',
       },
       lessonIds: [0, 1],
     },
     1: {
-      header: {
+      folder: {
         title: 'Advanced',
       },
       lessonIds: [2, 3],

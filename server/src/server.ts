@@ -5,6 +5,11 @@ import axios from 'axios';
 import fetch from 'cross-fetch';
 import playwright from 'playwright';
 import ytdl from 'ytdl-core';
+import dotenv from 'dotenv';
+dotenv.config();
+
+const { BRIGHT_DATA_KEY } = process.env;
+
 const app = express();
 const port = Number(process.env.PORT || 8080);
 const corsOptions: CorsOptions = {
@@ -61,9 +66,38 @@ const getYT = async (url: string) => {
 };
 
 const getInsta = async (url: string) => {
+  // https://www.instagram.com/p/Ca5nG5VoIe4/
   // const htmlResult = await getHtmlPlaywright(url);
   // console.log({ htmlResult: htmlResult.toString().match(/\<video/g) });
   // return htmlResult.match(/<video.+src\="([^]")+"/)[1];
+};
+
+const getTikTok = async (url: string) => {
+  const authorization = `Bearer ${BRIGHT_DATA_KEY}`;
+
+  const responseTrigger = await fetch(
+    'https://api.luminati.io/dca/trigger_immediate?collector=c_l16uz9632i0mxrs8yk',
+    {
+      body: `{"url":"${url}"}`,
+      headers: {
+        Authorization: authorization,
+        'Content-Type': 'application/json',
+      },
+      method: 'POST',
+    },
+  );
+  const { response_id } = await responseTrigger.json();
+  const response = await fetch(
+    `https://api.luminati.io/dca/get_result?response_id=${response_id}`,
+    {
+      headers: {
+        Authorization: authorization,
+      },
+    },
+  );
+
+  const data = await response.json();
+  console.log(data);
 };
 
 app.post('/geturl', async (req, res) => {
@@ -85,4 +119,5 @@ app.listen(port, () => {
   // get();
   // getYT();
   // getInsta('https://www.instagram.com/p/Ca5nG5VoIe4/');
+  getTikTok('https://www.tiktok.com/@icepresso/video/6980670280649755906');
 });

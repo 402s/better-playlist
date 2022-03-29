@@ -6,7 +6,7 @@ import FileText from '../../components/Icons/FileText';
 import Plus from '../../components/Icons/Plus';
 import Trash from '../../components/Icons/Trash';
 import Video from '../../components/Icons/Video';
-import { HeaderNode, Lesson, setStore, store } from '../../store/store';
+import { FolderNode, Lesson, setStore, store } from '../../store/store';
 import { LessonModal } from './Modal';
 
 const Builder = () => {
@@ -21,7 +21,7 @@ const Builder = () => {
 const View = () => {
   return (
     <div class="">
-      <For each={Object.entries(store.headers)}>
+      <For each={Object.entries(store.folders)}>
         {([headerId, item]) => {
           return <Group id={headerId} {...item} />;
         }}
@@ -38,14 +38,14 @@ const View = () => {
   );
 };
 
-const Group: Component<HeaderNode['0'] & { id: string }> = (props) => {
+const Group: Component<FolderNode['0'] & { id: string }> = (props) => {
   let button!: HTMLButtonElement;
   const [toggle, setToggle] = createSignal(false);
   return (
     <>
       <div class="bg-white rounded-md shadow-sm p-5 my-5">
         <div class="flex justify-between pb-5 border-b border-gray-100">
-          <h2 class="font-semibold text-black/50">{props.header.title}</h2>
+          <h2 class="font-semibold text-black/50">{props.folder.title}</h2>
           <div class="flex gap-2">
             <button class="p-1 rounded-lg border border-gray-200">
               <Edit />
@@ -76,6 +76,7 @@ const Group: Component<HeaderNode['0'] & { id: string }> = (props) => {
           <Dismiss
             open={toggle}
             setOpen={setToggle}
+            focusElementOnOpen={'[data-fo'}
             menuButton={button}
             mount="body"
             overlay
@@ -88,7 +89,11 @@ const Group: Component<HeaderNode['0'] & { id: string }> = (props) => {
                 setToggle(false);
               }}
             >
-              <LessonModal type="add" headerId={props.id as any} />
+              <LessonModal
+                type="add"
+                headerId={props.id as any}
+                onCloseModal={() => setToggle(false)}
+              />
             </div>
           </Dismiss>
         </div>
