@@ -1,0 +1,10 @@
+{
+  "tailwindCSS.experimental.classRegex": [
+    "[a-zA-Z]+Class=\"([^\"]+)\"",
+    "[a-zA-Z]+Class={`([^`]+)`}",
+    "const\\s[a-zA-Z]+Class\\s=\\s?\n?\\s*?'([^']+)'",
+    "let\\s[a-zA-Z]+Class\\s=\\s?\n?\\s*?'([^']+)'",
+    "const\\s[a-zA-Z]+Class\\s=\\s?\n?\\s*?`([^`]+)`",
+    "let\\s[a-zA-Z]+Class\\s=\\s?\n?\\s*?`([^`]+)`"
+  ]
+}

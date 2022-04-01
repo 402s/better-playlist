@@ -21,14 +21,20 @@ export type Lesson = {
   };
 };
 
-type SubjectNode = {
-  [key: number]: {
-    type: 'lesson' | 'folder';
-    data: Lesson | Folder;
-  };
+export type FolderData = {
+  type: 'folder';
+  data: Folder;
+};
+export type LessonData = {
+  type: 'lesson';
+  data: Lesson;
 };
 
-type Folder = {
+type SubjectNode = {
+  [key: number]: { children: number[] } & (LessonData | FolderData | { type: 'root' });
+};
+
+export type Folder = {
   title: string;
 };
 
@@ -49,25 +55,114 @@ type LessonNode = {
 type TStore = {
   currentSubject: {
     lessonId: number;
-    headerId: number;
+    folderId: number;
   } | null;
   title: string;
   lessons: LessonNode;
   folders: FolderNode;
+  lessonsIds: number[];
+  folderIds: number[];
+  subjectNode: SubjectNode;
   buildMode: boolean;
-  nextHeaderId: number;
+  nextFolderId: number;
   nextLessonId: number;
+  nextSubjectNodeId: number;
 };
 
 export const [store, setStore] = createStore<TStore>({
   buildMode: false,
+  lessonsIds: [5, 6, 7, 8, 9, 10],
+  folderIds: [1, 2, 3, 4],
   title: 'CSS Master Class',
   currentSubject: {
-    headerId: 0,
+    folderId: 0,
     lessonId: 1,
   },
-  nextHeaderId: 2,
+  nextFolderId: 4,
   nextLessonId: 4,
+  nextSubjectNodeId: 11,
+  subjectNode: {
+    0: {
+      type: 'root',
+      children: [1, 2],
+    },
+    1: {
+      type: 'folder',
+      data: {
+        title: 'Beginner',
+      },
+      children: [3, 4, 8],
+    },
+    2: {
+      type: 'folder',
+      data: {
+        title: 'Advanced',
+      },
+      children: [9, 10],
+    },
+    3: {
+      type: 'folder',
+      data: {
+        title: 'Box Model - part 1',
+      },
+      children: [5, 6],
+    },
+    4: {
+      type: 'folder',
+      data: {
+        title: 'Box Model - part 2',
+      },
+      children: [7],
+    },
+    5: {
+      type: 'lesson',
+      data: {
+        type: 'text',
+        title: 'content',
+      },
+      children: [],
+    },
+    6: {
+      type: 'lesson',
+      data: {
+        type: 'text',
+        title: 'padding',
+      },
+      children: [],
+    },
+    7: {
+      type: 'lesson',
+      data: {
+        type: 'text',
+        title: 'margin',
+      },
+      children: [],
+    },
+    8: {
+      type: 'lesson',
+      data: {
+        type: 'text',
+        title: 'classes',
+      },
+      children: [],
+    },
+    9: {
+      type: 'lesson',
+      data: {
+        type: 'video',
+        title: 'Flex Box',
+      },
+      children: [],
+    },
+    10: {
+      type: 'lesson',
+      data: {
+        type: 'text',
+        title: 'Stacking Context',
+      },
+      children: [],
+    },
+  },
   lessons: {
     0: {
       lesson: {
