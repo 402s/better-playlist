@@ -3,18 +3,18 @@ import { produce } from 'solid-js/store';
 import { setStore, store } from '../../store/store';
 
 const Header = () => {
-  const currentLessonTitle = createMemo(() => {
-    const { currentSubject, buildMode } = store;
-    if (!currentSubject || buildMode) return '';
-    return store.lessons[currentSubject.lessonId].lesson.title;
-  });
+  // const currentLessonTitle = createMemo(() => {
+  //   const { currentSubject, buildMode } = store;
+  //   if (!currentSubject || buildMode) return '';
+  //   return store.lessons[currentSubject.lessonId].lesson.title;
+  // });
   return (
     <div class="fixed top-0 left-0 w-full bg-[#210731] h-[60px] text-white p-1">
       <div class="flex items-center">
         <div>
           <Show when={!store.buildMode} fallback={'Edit Mode Active'}>
             <div>{store.title}</div>
-            <div>{currentLessonTitle()}</div>
+            {/* <div>{currentLessonTitle()}</div> */}
           </Show>
         </div>
         <button

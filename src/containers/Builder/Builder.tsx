@@ -8,7 +8,7 @@ import Trash from '../../components/Icons/Trash';
 import Video from '../../components/Icons/Video';
 import { Folder, FolderNode, Lesson, setStore, store } from '../../store/store';
 import { BuilderModal } from './Modal';
-import { dndzone } from 'solid-dnd-directive';
+import { dndzone, SHADOW_PLACEHOLDER_ITEM_ID } from 'solid-dnd-directive';
 import { Accessor } from 'solid-js';
 import { Signal } from 'solid-js';
 declare module 'solid-js' {
@@ -17,6 +17,7 @@ declare module 'solid-js' {
       dndzone: any;
       _dndzone: any;
       consider: any;
+      finalize: any;
       foo: any;
     }
   }
@@ -36,14 +37,68 @@ const View = () => {
   let button!: HTMLButtonElement;
   const [toggle, setToggle] = createSignal(false);
 
+  function handleDndEvent(e: any) {
+    // let { items: newItems } = e.detail as {
+    //   items: { id: number; tempId: number; isDndShadowItem: boolean }[];
+    // };
+    let { items: newItems } = e.detail;
+    // const foundItem = newItems.find((item) => item.isDndShadowItem)!;
+    // @ts-ignore
+    // newItems = newItems.map(({ id, tempId }) => {
+    //   if (id.toString() === SHADOW_PLACEHOLDER_ITEM_ID) return tempId;
+    //   return id;
+    // });
+    console.log('fire!', newItems);
+
+    // setStore(
+    //   produce((s) => {
+    //     // s.dndTemp.id = foundItem ? foundItem.id : null;
+    //     // s.dndTemp.tempId =
+    //     //   foundItem && foundItem.id.toString() === SHADOW_PLACEHOLDER_ITEM_ID
+    //     //     ? SHADOW_PLACEHOLDER_ITEM_ID
+    //     //     : null;
+    //     s.subjectNode[parentId].children = newItems as any;
+    //   }),
+    // );
+    setStore('subjectNode', 0 as any, 'children', newItems);
+  }
+
+  let el: any;
+  // function consider(el: any) {
+  //   el.addEventListener('consider', handleDndEvent);
+  // }
+  // function finalize(el: any) {
+  //   el.addEventListener('finalize', handleDndEvent);
+  // }
+  onMount(() => {
+    // if (stop) return;
+    if (!el) return;
+    console.log('add!!');
+    el.addEventListener('consider', handleDndEvent);
+    el.addEventListener('finalize', handleDndEvent);
+  });
+
+  function _dndzone(el: any, value: any) {
+    // dndzone(bar,)
+    dndzone(el, value);
+    // dndzone(el, value);
+  }
+
   return (
     <div class="">
-      <For each={store.subjectNode[0].children}>
-        {(id) => {
-          return <Node id={id} parentId={0} />;
+      <div
+        use:_dndzone={{
+          items: () => store.subjectNode[0].children,
         }}
-      </For>
-      <div class="">
+        ref={el}
+      >
+        <For each={store.subjectNode[0].children}>
+          {(id) => {
+            return <Node id={id._id} parentId={0} />;
+          }}
+        </For>
+      </div>
+      {/* <div class="">
         <button
           class="flex gap-1 rounded-lg bg-iris text-white px-5 py-2"
           ref={button}
@@ -70,7 +125,7 @@ const View = () => {
             />
           </div>
         </Dismiss>
-      </div>
+      </div> */}
     </div>
   );
 };
@@ -85,6 +140,11 @@ const View = () => {
 //     </div>
 //   );
 // };
+let stop = false;
+setTimeout(() => {
+  stop = true;
+  console.log('stop');
+}, 3000);
 
 const Node: Component<{ id: number; parentId: number }> = ({ id, parentId }) => {
   const node = store.subjectNode[id];
@@ -94,47 +154,95 @@ const Node: Component<{ id: number; parentId: number }> = ({ id, parentId }) => 
   });
 
   function handleDndEvent(e: any) {
-    const { items: newItems } = e.detail;
-    console.log('fire!');
+    // let { items: newItems } = e.detail as {
+    //   items: { id: number; tempId: number; isDndShadowItem: boolean }[];
+    // };
+    let { items: newItems } = e.detail;
+    // const foundItem = newItems.find((item) => item.isDndShadowItem)!;
+    // @ts-ignore
+    // newItems = newItems.map(({ id, tempId }) => {
+    //   if (id.toString() === SHADOW_PLACEHOLDER_ITEM_ID) return tempId;
+    //   return id;
+    // });
+    console.log('fire!', newItems);
+
     // setStore(
     //   produce((s) => {
-    //     s.subjectNode[id].children = newItems;
+    //     // s.dndTemp.id = foundItem ? foundItem.id : null;
+    //     // s.dndTemp.tempId =
+    //     //   foundItem && foundItem.id.toString() === SHADOW_PLACEHOLDER_ITEM_ID
+    //     //     ? SHADOW_PLACEHOLDER_ITEM_ID
+    //     //     : null;
+    //     s.subjectNode[parentId].children = newItems as any;
     //   }),
     // );
+    setStore('subjectNode', id as any, 'children', newItems);
   }
+
+  let el: any;
+  // function consider(el: any) {
+  //   el.addEventListener('consider', handleDndEvent);
+  // }
+  // function finalize(el: any) {
+  //   el.addEventListener('finalize', handleDndEvent);
+  // }
+  onMount(() => {
+    // if (stop) return;
+    if (!el) return;
+    console.log('add!!');
+    el.addEventListener('consider', handleDndEvent);
+    el.addEventListener('finalize', handleDndEvent);
+  });
+
   function _dndzone(el: any, value: any) {
     // dndzone(bar,)
     dndzone(el, value);
     // dndzone(el, value);
   }
 
+  //   const getDraggableChildren = () => {
+  //     const { dndTemp } = store;
+  //     const result = store.subjectNode[id].children.map((item) => {
+  //       if (item === dndTemp.id) {
+  //         let id = item;
+  //         if (dndTemp.tempId) {
+  //           // @ts-ignore
+  //           id = dndTemp.tempId;
+  //         }
+  //
+  //         return {
+  //           id,
+  //           tempId: item,
+  //           isDndShadowItem: true,
+  //         };
+  //       }
+  //
+  //       return { id: item, tempId: item };
+  //     });
+  //     console.log(result);
+  //     return result;
+  //   };
+  if (type === 'lesson') {
+    return <ViewItem id={id} parentId={parentId} lesson={data() as Lesson} />;
+  }
+
+  // const isLesson = !store.subjectNode[id].children.length;
   return (
-    <>
-      <Switch>
-        <Match when={type === 'folder'}>
-          <Group title={data().title} parentId={id}>
-            <For each={store.subjectNode[id].children}>
-              {(childId) => {
-                return (
-                  <div
-                    use:dndzone={{
-                      items: () => store.subjectNode[id].children.map((item) => ({ id: item })),
-                    }}
-                    use:consider={handleDndEvent}
-                    // use:cosider={handleDndEvent}
-                  >
-                    <Node id={childId} parentId={id} />
-                  </div>
-                );
-              }}
-            </For>
-          </Group>
-        </Match>
-        <Match when={type === 'lesson'}>
-          <ViewItem id={id} parentId={parentId} lesson={data() as Lesson} />
-        </Match>
-      </Switch>
-    </>
+    <Group title={data().title} parentId={id}>
+      <div
+        use:_dndzone={{
+          items: () => store.subjectNode[id].children,
+          type: id,
+        }}
+        ref={el}
+      >
+        <For each={store.subjectNode[id].children}>
+          {(child) => {
+            return <Node id={child._id} parentId={id} />;
+          }}
+        </For>
+      </div>
+    </Group>
   );
 };
 
@@ -207,6 +315,7 @@ const ViewItem: Component<{ id: number; parentId: number; lesson: Lesson }> = (p
           </Match>
         </Switch>
       </div>
+      <div class="mr-4">{props.id}</div>
       <div>{props.lesson.title}</div>
       <div class="ml-auto flex gap-2">
         <button class="p-1 rounded-lg border border-gray-200">

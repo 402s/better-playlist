@@ -31,7 +31,11 @@ export type LessonData = {
 };
 
 type SubjectNode = {
-  [key: number]: { children: number[] } & (LessonData | FolderData | { type: 'root' });
+  [key: number]: { children: { _id: number; id: number }[] } & (
+    | LessonData
+    | FolderData
+    | { type: 'root' }
+  );
 };
 
 export type Folder = {
@@ -57,9 +61,12 @@ type TStore = {
     lessonId: number;
     folderId: number;
   } | null;
+  dndTemp: {
+    tempId: string | null;
+    id: number | null;
+    isDndShadowItem: boolean;
+  };
   title: string;
-  lessons: LessonNode;
-  folders: FolderNode;
   lessonsIds: number[];
   folderIds: number[];
   subjectNode: SubjectNode;
@@ -81,38 +88,63 @@ export const [store, setStore] = createStore<TStore>({
   nextFolderId: 4,
   nextLessonId: 4,
   nextSubjectNodeId: 11,
+  dndTemp: { id: null, tempId: null, isDndShadowItem: true },
   subjectNode: {
     0: {
       type: 'root',
-      children: [1, 2],
+      children: [
+        { _id: 1, id: 1 },
+        { _id: 2, id: 2 },
+        // { _id: 20, id: 20 },
+      ],
     },
     1: {
       type: 'folder',
       data: {
         title: 'Beginner',
       },
-      children: [3, 4, 8],
+      children: [
+        { _id: 3, id: 3 },
+        { _id: 4, id: 4 },
+        { _id: 8, id: 8 },
+      ],
     },
     2: {
       type: 'folder',
       data: {
         title: 'Advanced',
       },
-      children: [9, 10],
+      children: [
+        { _id: 9, id: 9 },
+        { _id: 10, id: 10 },
+      ],
+    },
+    20: {
+      type: 'folder',
+      data: {
+        title: 'Ultra!!!',
+      },
+      children: [
+        // { _id: 9, id: 9 },
+        // { _id: 10, id: 10 },
+      ],
     },
     3: {
       type: 'folder',
       data: {
         title: 'Box Model - part 1',
       },
-      children: [5, 6],
+      children: [
+        { _id: 5, id: 5 },
+        { _id: 6, id: 6 },
+      ],
     },
     4: {
       type: 'folder',
       data: {
         title: 'Box Model - part 2',
       },
-      children: [7],
+      children: [{ _id: 7, id: 7 }],
     },
     5: {
       type: 'lesson',
@@ -161,56 +193,6 @@ export const [store, setStore] = createStore<TStore>({
         title: 'Stacking Context',
       },
       children: [],
-    },
-  },
-  lessons: {
-    0: {
-      lesson: {
-        title: 'Box Model',
-        type: 'text',
-      },
-      siblingLessonIds: [],
-    },
-    1: {
-      lesson: {
-        title: 'Classes',
-        type: 'text',
-      },
-      siblingLessonIds: [],
-    },
-    2: {
-      lesson: {
-        title: 'Flex box',
-        type: 'video',
-        metaData: {
-          provider: 'tiktok',
-          videoURL:
-            'https://v16m-webapp.tiktokcdn-us.com/015345f5e89fa815fc84b6605e0ea94d/623cfc81/video/tos/useast2a/tos-useast2a-ve-0068c004/23fa97c05cc1422da18e0cff2ec4514d/?a=1988&br=580&bt=290&cd=0%7C0%7C0%7C0&ch=0&cr=0&cs=0&dr=0&ds=3&er=&ft=XY53A3E7nz7ThjfjJDXq&l=202203241719000101130062180F1E7DBE&lr=tiktok_m&mime_type=video_mp4&net=0&pl=0&qs=0&rc=M292cmQ6ZnFsNzMzNzczM0ApOjk2ZDk1N2RpN2g5OjNmZGc2Lm1rcjRvNHFgLS1kMTZzcy1jLzNhXmA0YTQ2XzZeYTY6Yw%3D%3D&vl=&vr=',
-          duration: 30,
-        },
-      },
-      siblingLessonIds: [],
-    },
-    3: {
-      lesson: {
-        title: 'Stacking Context',
-        type: 'text',
-      },
-      siblingLessonIds: [],
-    },
-  },
-  folders: {
-    0: {
-      folder: {
-        title: 'Beginner',
-      },
-      lessonIds: [0, 1],
-    },
-    1: {
-      folder: {
-        title: 'Advanced',
-      },
-      lessonIds: [2, 3],
     },
   },
 });
