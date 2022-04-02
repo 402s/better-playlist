@@ -17,7 +17,7 @@ const View = () => {
     <div class="">
       <For each={store.subjectNode[0].children}>
         {(id) => {
-          return <Node id={id.id} parentId={0} />;
+          return <Node id={id} parentId={0} />;
         }}
       </For>
     </div>
@@ -38,7 +38,7 @@ const Node: Component<{ id: number; parentId: number }> = ({ id, parentId }) => 
           <Group title={data().title}>
             <For each={store.subjectNode[id].children}>
               {(childId) => {
-                return <Node id={childId.id} parentId={id} />;
+                return <Node id={childId} parentId={id} />;
               }}
             </For>
           </Group>

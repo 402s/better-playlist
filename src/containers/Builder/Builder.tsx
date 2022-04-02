@@ -1,5 +1,16 @@
 import Dismiss from 'solid-dismiss';
-import { Component, createMemo, createSignal, For, Match, onMount, Switch } from 'solid-js';
+import {
+  Component,
+  createEffect,
+  createMemo,
+  createSignal,
+  For,
+  Match,
+  on,
+  onCleanup,
+  onMount,
+  Switch,
+} from 'solid-js';
 import { produce } from 'solid-js/store';
 import Edit from '../../components/Icons/Edit';
 import FileText from '../../components/Icons/FileText';
@@ -11,6 +22,34 @@ import { BuilderModal } from './Modal';
 import { dndzone, SHADOW_PLACEHOLDER_ITEM_ID } from 'solid-dnd-directive';
 import { Accessor } from 'solid-js';
 import { Signal } from 'solid-js';
+import Sortable from 'sortablejs';
+import JSON_Stringify_Parse from '../../utils/jsonStringifyParse';
+
+const SortableWrapper: Component<{ onEnd?: (event: Sortable.SortableEvent) => void }> = (props) => {
+  const { onEnd } = props;
+  let sortable: Sortable;
+  let el!: HTMLDivElement;
+
+  onMount(() => {
+    console.log('mount!!');
+    sortable = new Sortable(el, {
+      group: 'nested',
+      animation: 150,
+      swapThreshold: 0.65,
+      onEnd,
+      onChange: () => {
+        console.log('onChange');
+      },
+    });
+  });
+
+  onCleanup(() => {
+    console.log('dismount!!');
+    sortable.destroy();
+  });
+
+  return <div ref={el}>{props.children}</div>;
+};
 declare module 'solid-js' {
   namespace JSX {
     interface Directives {
@@ -24,11 +63,34 @@ declare module 'solid-js' {
 }
 
 const Builder = () => {
-  onMount(() => {
+  // createEffect(
+  //   on(
+  //     () => store.subjectNode,
+  //     (_store) => {
+  //       console.log(JSON_Stringify_Parse(_store));
+  //       // myVideoPlayer.addEventListener('loadedmetadata', function () {
+  //       //   console.log(videoPlayer.duration);
+  //       // });
+  //       // console.log('fire!!!!');
+  //       // requestIdleCallback(() => {
+  //       //   localStorage.setItem('store', JSON.stringify(store));
+  //       // });
+  //     },
+  //     { defer: true },
+  //   ),
+  // );
+  createEffect(() => {
+    console.log(JSON_Stringify_Parse(store.subjectNode));
+    requestIdleCallback(() => {
+      localStorage.setItem('store', JSON.stringify(store));
+    });
     // myVideoPlayer.addEventListener('loadedmetadata', function () {
     //   console.log(videoPlayer.duration);
     // });
-    // console.log(JSON.parse(JSON.stringify(store.subjectNode)));
+    // console.log('fire!!!!');
+    // requestIdleCallback(() => {
+    //   localStorage.setItem('store', JSON.stringify(store));
+    // });
   });
   return <View></View>;
 };
@@ -37,67 +99,15 @@ const View = () => {
   let button!: HTMLButtonElement;
   const [toggle, setToggle] = createSignal(false);
 
-  function handleDndEvent(e: any) {
-    // let { items: newItems } = e.detail as {
-    //   items: { id: number; tempId: number; isDndShadowItem: boolean }[];
-    // };
-    let { items: newItems } = e.detail;
-    // const foundItem = newItems.find((item) => item.isDndShadowItem)!;
-    // @ts-ignore
-    // newItems = newItems.map(({ id, tempId }) => {
-    //   if (id.toString() === SHADOW_PLACEHOLDER_ITEM_ID) return tempId;
-    //   return id;
-    // });
-    console.log('fire!', newItems);
-
-    // setStore(
-    //   produce((s) => {
-    //     // s.dndTemp.id = foundItem ? foundItem.id : null;
-    //     // s.dndTemp.tempId =
-    //     //   foundItem && foundItem.id.toString() === SHADOW_PLACEHOLDER_ITEM_ID
-    //     //     ? SHADOW_PLACEHOLDER_ITEM_ID
-    //     //     : null;
-    //     s.subjectNode[parentId].children = newItems as any;
-    //   }),
-    // );
-    setStore('subjectNode', 0 as any, 'children', newItems);
-  }
-
-  let el: any;
-  // function consider(el: any) {
-  //   el.addEventListener('consider', handleDndEvent);
-  // }
-  // function finalize(el: any) {
-  //   el.addEventListener('finalize', handleDndEvent);
-  // }
-  onMount(() => {
-    // if (stop) return;
-    if (!el) return;
-    console.log('add!!');
-    el.addEventListener('consider', handleDndEvent);
-    el.addEventListener('finalize', handleDndEvent);
-  });
-
-  function _dndzone(el: any, value: any) {
-    // dndzone(bar,)
-    dndzone(el, value);
-    // dndzone(el, value);
-  }
-
   return (
     <div class="">
-      <div
-        use:_dndzone={{
-          items: () => store.subjectNode[0].children,
-        }}
-        ref={el}
-      >
+      <SortableWrapper>
         <For each={store.subjectNode[0].children}>
           {(id) => {
-            return <Node id={id._id} parentId={0} />;
+            return <Node id={id} parentId={0} />;
           }}
         </For>
-      </div>
+      </SortableWrapper>
       {/* <div class="">
         <button
           class="flex gap-1 rounded-lg bg-iris text-white px-5 py-2"
@@ -140,11 +150,6 @@ const View = () => {
 //     </div>
 //   );
 // };
-let stop = false;
-setTimeout(() => {
-  stop = true;
-  console.log('stop');
-}, 3000);
 
 const Node: Component<{ id: number; parentId: number }> = ({ id, parentId }) => {
   const node = store.subjectNode[id];
@@ -153,140 +158,85 @@ const Node: Component<{ id: number; parentId: number }> = ({ id, parentId }) => 
     return (store.subjectNode[id] as any).data as Folder | Lesson;
   });
 
-  function handleDndEvent(e: any) {
-    // let { items: newItems } = e.detail as {
-    //   items: { id: number; tempId: number; isDndShadowItem: boolean }[];
-    // };
-    let { items: newItems } = e.detail;
-    // const foundItem = newItems.find((item) => item.isDndShadowItem)!;
-    // @ts-ignore
-    // newItems = newItems.map(({ id, tempId }) => {
-    //   if (id.toString() === SHADOW_PLACEHOLDER_ITEM_ID) return tempId;
-    //   return id;
-    // });
-    console.log('fire!', newItems);
-
-    // setStore(
-    //   produce((s) => {
-    //     // s.dndTemp.id = foundItem ? foundItem.id : null;
-    //     // s.dndTemp.tempId =
-    //     //   foundItem && foundItem.id.toString() === SHADOW_PLACEHOLDER_ITEM_ID
-    //     //     ? SHADOW_PLACEHOLDER_ITEM_ID
-    //     //     : null;
-    //     s.subjectNode[parentId].children = newItems as any;
-    //   }),
-    // );
-    setStore('subjectNode', id as any, 'children', newItems);
-  }
-
-  let el: any;
-  // function consider(el: any) {
-  //   el.addEventListener('consider', handleDndEvent);
-  // }
-  // function finalize(el: any) {
-  //   el.addEventListener('finalize', handleDndEvent);
-  // }
-  onMount(() => {
-    // if (stop) return;
-    if (!el) return;
-    console.log('add!!');
-    el.addEventListener('consider', handleDndEvent);
-    el.addEventListener('finalize', handleDndEvent);
-  });
-
-  function _dndzone(el: any, value: any) {
-    // dndzone(bar,)
-    dndzone(el, value);
-    // dndzone(el, value);
-  }
-
-  //   const getDraggableChildren = () => {
-  //     const { dndTemp } = store;
-  //     const result = store.subjectNode[id].children.map((item) => {
-  //       if (item === dndTemp.id) {
-  //         let id = item;
-  //         if (dndTemp.tempId) {
-  //           // @ts-ignore
-  //           id = dndTemp.tempId;
-  //         }
-  //
-  //         return {
-  //           id,
-  //           tempId: item,
-  //           isDndShadowItem: true,
-  //         };
-  //       }
-  //
-  //       return { id: item, tempId: item };
-  //     });
-  //     console.log(result);
-  //     return result;
-  //   };
   if (type === 'lesson') {
     return <ViewItem id={id} parentId={parentId} lesson={data() as Lesson} />;
   }
-
   // const isLesson = !store.subjectNode[id].children.length;
-  return (
-    <Group title={data().title} parentId={id}>
-      <div
-        use:_dndzone={{
-          items: () => store.subjectNode[id].children,
-          type: id,
-        }}
-        ref={el}
-      >
-        <For each={store.subjectNode[id].children}>
-          {(child) => {
-            return <Node id={child._id} parentId={id} />;
+  if (type === 'folder') {
+    return (
+      <Group id={id} title={data().title} parentId={id}>
+        {id}
+        <SortableWrapper
+          onEnd={(e) => {
+            const parentElement = e.item.parentElement!.closest('.nested');
+            const currentId = Number(e.item.getAttribute('data-sortable-id')!);
+            const newParentId = Number(parentElement?.getAttribute('data-sortable-id')!);
+            const newIndex = e.newIndex!;
+
+            setStore(
+              produce((s) => {
+                const parentNode = s.subjectNode[id];
+                const newParentNode = newParentId === id ? parentNode : s.subjectNode[newParentId];
+                const foundIdx = parentNode.children.findIndex((id) => id === currentId)!;
+                parentNode.children.splice(foundIdx, 1);
+                newParentNode.children.splice(newIndex, 0, currentId);
+              }),
+            );
           }}
-        </For>
-      </div>
-    </Group>
-  );
+        >
+          <For each={store.subjectNode[id].children}>
+            {(child) => {
+              return <Node id={child} parentId={id} />;
+            }}
+          </For>
+        </SortableWrapper>
+      </Group>
+    );
+  }
 };
 
-const Group: Component<Folder & { parentId: number }> = (props) => {
+const Group: Component<Folder & { id: number; parentId: number }> = (props) => {
   let button!: HTMLButtonElement;
   const [toggle, setToggle] = createSignal(false);
   return (
-    <>
-      <div class="bg-white rounded-md shadow-md shadow-gray-100 p-5 my-5">
-        <div class="flex justify-between pb-5 border-b border-gray-100">
-          <h2 class="font-semibold text-black/50">{props.title}</h2>
-          <div class="flex gap-2">
-            <button class="p-1 rounded-lg border border-gray-200">
-              <Edit />
-            </button>
-            <button class="p-1 rounded-lg border border-gray-200">
-              <Trash />
-            </button>
-          </div>
-        </div>
-        <div class="">{props.children}</div>
-        <div class="mt-5">
-          <button class="flex gap-1 rounded-lg bg-iris text-white px-5 py-2" ref={button}>
-            <span>Add</span> <Plus />
+    <div
+      data-sortable-id={props.id}
+      class="bg-white rounded-md shadow-md shadow-gray-100 p-5 my-5 nested"
+    >
+      <div class="flex justify-between pb-5 border-b border-gray-100">
+        <h2 class="font-semibold text-black/50">{props.title}</h2>
+        <div class="flex gap-2">
+          <button class="p-1 rounded-lg border border-gray-200">
+            <Edit />
           </button>
-          <Dismiss
-            open={toggle}
-            setOpen={setToggle}
-            focusElementOnOpen={'[data-modal-focus-on-open]'}
-            menuButton={button}
-            modal
-          >
-            <div class="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-black/25 z-50">
-              <BuilderModal
-                type="lesson"
-                editType="add"
-                parentId={props.parentId}
-                onCloseModal={() => setToggle(false)}
-              />
-            </div>
-          </Dismiss>
+          <button class="p-1 rounded-lg border border-gray-200">
+            <Trash />
+          </button>
         </div>
       </div>
-    </>
+      <div class="">{props.children}</div>
+      <div class="mt-5">
+        <button class="flex gap-1 rounded-lg bg-iris text-white px-5 py-2" ref={button}>
+          <span>Add</span> <Plus />
+        </button>
+        <Dismiss
+          open={toggle}
+          setOpen={setToggle}
+          focusElementOnOpen={'[data-modal-focus-on-open]'}
+          menuButton={button}
+          modal
+        >
+          <div class="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-black/25 z-50">
+            <BuilderModal
+              type="lesson"
+              editType="add"
+              parentId={props.parentId}
+              onCloseModal={() => setToggle(false)}
+            />
+          </div>
+        </Dismiss>
+      </div>
+    </div>
   );
 };
 
@@ -304,7 +254,7 @@ const ViewItem: Component<{ id: number; parentId: number; lesson: Lesson }> = (p
     );
   };
   return (
-    <div class="flex items-center py-5 border-b border-gray-100 ">
+    <div data-sortable-id={props.id} class="flex items-center py-5 border-b border-gray-100 ">
       <div class="mr-5 text-gray-500">
         <Switch>
           <Match when={type() === 'text'}>
