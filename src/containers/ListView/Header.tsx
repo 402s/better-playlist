@@ -9,7 +9,7 @@ const Header = () => {
   //   return store.lessons[currentSubject.lessonId].lesson.title;
   // });
   return (
-    <div class="fixed top-0 left-0 w-full bg-[#210731] h-[60px] text-white p-1">
+    <div class="fixed top-0 left-0 w-full bg-[#210731] h-[60px] text-white p-1 z-50">
       <div class="flex items-center">
         <div>
           <Show when={!store.buildMode} fallback={'Edit Mode Active'}>

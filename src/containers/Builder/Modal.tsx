@@ -37,7 +37,8 @@ export const BuilderModal: Component<{
             },
             children: [],
           };
-          s.subjectNode[parentId].children.push(newId);
+          // s.subjectNode[parentId].children.push(newId);
+          s.subjectNode[parentId].children.push({ id: newId });
           return;
         }
 
@@ -49,7 +50,8 @@ export const BuilderModal: Component<{
             },
             children: [],
           };
-          s.subjectNode[parentId].children.push(newId);
+          // s.subjectNode[parentId].children.push(newId);
+          s.subjectNode[parentId].children.push({ id: newId });
           return;
         }
         // s.nextLessonId = newLessonId;

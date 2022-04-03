@@ -2,7 +2,7 @@ import { Component, Match, onMount, Switch } from 'solid-js';
 import { createStore } from 'solid-js/store';
 import Header from './containers/ListView/Header';
 import View from './containers/ListView/View';
-import VideoPlayer from './components/VideoPlayer/VideoPlayer';
+// import VideoPlayer from './components/VideoPlayer/VideoPlayer';
 import createEmbedString from './utils/createEmbedString';
 import { store } from './store/store';
 import Builder from './containers/Builder/Builder';
